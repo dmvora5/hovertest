@@ -1,15 +1,67 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router'; // If you're using Next.js
 
-const ItemCard = ({ item, isTouched, cursorPosition, handleTouchStart, handleTouchMove, handleTouchEnd, handleClick }) => {
+const ItemCard = ({ item }) => {
+  const [isTouched, setIsTouched] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ top: 0, left: 0 });
+  const router = useRouter(); // For handling redirection
+
+  // Timer to track long press
+  let touchTimer;
+
+  const handleMouseEnter = () => {
+    setIsTouched(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsTouched(false);
+  };
+
+  const handleMouseMove = (e) => {
+    setCursorPosition({
+      top: e.clientY + 5,
+      left: e.clientX + 5,
+    });
+  };
+
+  // Touch and Hold for Mobile
+  const handleTouchStart = (e) => {
+    setCursorPosition({
+      top: e.touches[0].clientY + 5,
+      left: e.touches[0].clientX + 5,
+    });
+
+    touchTimer = setTimeout(() => {
+      setIsTouched(true);
+    }, 500); // 500ms delay for long press
+  };
+
+  const handleTouchMove = (e) => {
+    if (isTouched) {
+      setCursorPosition({
+        top: e.touches[0].clientY + 5,
+        left: e.touches[0].clientX + 5,
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(touchTimer); // Clear the timer if user releases early
+    setIsTouched(false); // Hide modal when touch is released
+  };
+
+  const handleClick = () => {
+    router.push('/new-page'); // Redirect to a different page on click/touch
+  };
+
   return (
     <div
       className="item-card"
-      onMouseEnter={() => handleTouchStart(item.id)}
-      onMouseLeave={handleTouchEnd}
-      onMouseMove={handleTouchMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
       onClick={handleClick}
-      onTouchStart={(e) => handleTouchStart(item.id, e)}
+      onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}  // Track touch movement for dragging
       onTouchEnd={handleTouchEnd}
       style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}
@@ -43,13 +95,8 @@ const ItemCard = ({ item, isTouched, cursorPosition, handleTouchStart, handleTou
   );
 };
 
-const ItemList = () => {
-  const [activeItemId, setActiveItemId] = useState(null);
-  const [cursorPosition, setCursorPosition] = useState({ top: 0, left: 0 });
-  const [isTouched, setIsTouched] = useState(false);
-  const router = useRouter(); // For handling redirection
-  let touchTimer;
 
+const ItemList = () => {
   const items = [
     { 
       id: 1, 
@@ -57,7 +104,7 @@ const ItemList = () => {
       description: 'Description for item 1', 
       price: '10', 
       volume: '1000', 
-      image: '/test.png' 
+      image: '/item1.png' 
     },
     { 
       id: 2, 
@@ -65,7 +112,7 @@ const ItemList = () => {
       description: 'Description for item 2', 
       price: '20', 
       volume: '2000', 
-      image: '/test.png' 
+      image: '/item2.png' 
     },
     { 
       id: 3, 
@@ -73,60 +120,15 @@ const ItemList = () => {
       description: 'Description for item 3', 
       price: '30', 
       volume: '3000', 
-      image: '/test.png' 
+      image: '/item3.png' 
     },
     // Add more items as needed
   ];
 
-  // Touch and Hold for Mobile
-  const handleTouchStart = (id, e) => {
-    if (e) {
-      setCursorPosition({
-        top: e.touches[0].clientY + 5,
-        left: e.touches[0].clientX + 5,
-      });
-    }
-
-    touchTimer = setTimeout(() => {
-      setActiveItemId(id);
-      setIsTouched(true);
-    }, 500); // 500ms delay for long press
-  };
-
-  const handleTouchMove = (e) => {
-    // Ensure that touches exist and there is at least one touch point
-    if (isTouched && e.touches && e.touches.length > 0) {
-      setCursorPosition({
-        top: e.touches[0].clientY + 5,
-        left: e.touches[0].clientX + 5,
-      });
-    }
-  };
-  
-
-  const handleTouchEnd = () => {
-    clearTimeout(touchTimer); // Clear the timer if user releases early
-    setIsTouched(false); // Hide modal when touch is released
-    setActiveItemId(null); // Reset active card when touch ends
-  };
-
-  const handleClick = () => {
-    router.push('/new-page'); // Redirect to a different page on click/touch
-  };
-
   return (
     <div className="item-list">
       {items.map(item => (
-        <ItemCard 
-          key={item.id} 
-          item={item}
-          isTouched={isTouched && activeItemId === item.id}  // Only show modal if this is the active card
-          cursorPosition={cursorPosition}
-          handleTouchStart={handleTouchStart}
-          handleTouchMove={handleTouchMove}
-          handleTouchEnd={handleTouchEnd}
-          handleClick={handleClick}
-        />
+        <ItemCard key={item.id} item={item} />
       ))}
     </div>
   );
