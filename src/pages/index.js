@@ -104,7 +104,7 @@ const ItemList = () => {
       description: 'Description for item 1', 
       price: '10', 
       volume: '1000', 
-      image: '/item1.png' 
+      image: '/test.png' 
     },
     { 
       id: 2, 
@@ -112,7 +112,7 @@ const ItemList = () => {
       description: 'Description for item 2', 
       price: '20', 
       volume: '2000', 
-      image: '/item2.png' 
+      image: '/test.png' 
     },
     { 
       id: 3, 
@@ -120,7 +120,7 @@ const ItemList = () => {
       description: 'Description for item 3', 
       price: '30', 
       volume: '3000', 
-      image: '/item3.png' 
+      image: '/test.png' 
     },
     // Add more items as needed
   ];
